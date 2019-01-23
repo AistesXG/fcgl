@@ -1,0 +1,119 @@
+package com.fcgl.auth;
+
+
+import com.fcgl.common.util.RandomUtils;
+import com.fcgl.response.ApiResponse;
+import com.fcgl.response.CodeMsgDataResponse;
+import com.fcgl.security.CurrentUser;
+import com.fcgl.security.JwtTokenUtils;
+import com.fcgl.common.exception.BusinessException;
+import com.fcgl.common.exception.DataAccessException;
+import com.fcgl.domain.entity.User;
+import com.fcgl.domain.service.UserDataService;
+import com.fcgl.messages.CodeMsg;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Date;
+
+/**
+ * @author furg@senthink.com
+ * @date 2018/11/8
+ */
+@Service
+public class AuthService {
+
+    @Value("${jwt.prefix}")
+    private String tokenPrefix;
+    @Autowired
+    private CodeMsg codeMsg;
+    @Autowired
+    private UserDataService userDataService;
+    @Autowired
+    private UserDetailsService userDetailsService;
+    @Autowired
+    private JwtTokenUtils jwtTokenUtils;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
+
+    @Transactional(rollbackFor = {DataAccessException.class, BusinessException.class})
+    public ApiResponse register(RegisterUserRequest request) {
+
+        if (userDataService.isUserExist(request.getAccount(), request.getMobile(), request.getEmail())) {
+            throw new BusinessException(codeMsg.userExistCode(), codeMsg.userExistMsg());
+        }
+        final String password = request.getPassword();
+        request.setPassword(passwordEncoder.encode(password));
+
+        User user = RegisterUserRequest.convertTo(request);
+        user.setLastPwdRestDate(new Date());
+        user.setUid(RandomUtils.randomString(30));
+        user.setRole(UserRoleEnum.TEACHER.name());
+        user.setEnable(true);
+        return new CodeMsgDataResponse<>(codeMsg.successCode(), codeMsg.successMsg(), userDataService.saveUser(user));
+    }
+
+
+    /**
+     * 用户登录
+     *
+     * @param username
+     * @param password
+     * @return
+     */
+    public ApiResponse login(String username, String password) {
+        UsernamePasswordAuthenticationToken upToken = new UsernamePasswordAuthenticationToken(username, password);
+        Authentication authentication;
+        try {
+            authentication = authenticationManager.authenticate(upToken);
+        } catch (DisabledException e) {
+            throw new BusinessException(codeMsg.failureCode(), "用户被禁用");
+        } catch (Exception e) {
+            throw new BusinessException(codeMsg.accountErrorCode(), codeMsg.accountErrorMsg());
+        }
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        CurrentUser currentUser = (CurrentUser) authentication.getPrincipal();
+        String token = jwtTokenUtils.generateToken(currentUser);
+        long expireAt = jwtTokenUtils.getExpirationDateFromToken(token).getTime();
+        TokenResponse tokenResponse = new TokenResponse(token, expireAt, currentUser.getRole());
+        return new CodeMsgDataResponse<>(codeMsg.successCode(), codeMsg.successMsg(), tokenResponse);
+    }
+
+    /**
+     * 刷新Token操作
+     *
+     * @param oldToken 旧的Token
+     * @return an instance of {@link ApiResponse}
+     */
+    public ApiResponse refresh(String oldToken) {
+        if (StringUtils.isBlank(oldToken)) {
+            return new CodeMsgDataResponse(codeMsg.tokenErrorCode(), codeMsg.tokenErrorMsg());
+        }
+        String token = oldToken.substring(tokenPrefix.length());
+        String username = jwtTokenUtils.getUsernameFromToken(token);
+        CurrentUser currentUser = (CurrentUser) userDetailsService.loadUserByUsername(username);
+        boolean canRefresh = jwtTokenUtils.canTokenBeRefreshed(token, currentUser.getLastPwdResetDate());
+        if (canRefresh) {
+            String newToken = jwtTokenUtils.refreshToken(token);
+            long expireAt = jwtTokenUtils.getExpirationDateFromToken(newToken).getTime();
+            TokenResponse tokenResponse = new TokenResponse(token, expireAt, currentUser.getRole());
+            return new CodeMsgDataResponse<>(codeMsg.successCode(), codeMsg.successMsg(), tokenResponse);
+        }
+        return new CodeMsgDataResponse(codeMsg.failureCode(), codeMsg.failureMsg());
+    }
+}

@@ -159,8 +159,8 @@ public class JwtTokenUtils implements Serializable {
     /**
      * Jwt Token 生成
      *
-     * @param claims   claims
-     * @param subject  subject
+     * @param claims  claims
+     * @param subject subject
      * @return string
      */
     private String doGenerateToken(Map<String, Object> claims, String subject) {

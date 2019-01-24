@@ -10,13 +10,13 @@ public interface Converter<S, T> {
 
     /**
      * 正向转换
+     *
      * @param s 源对象
      * @return 目标对象
      */
     T forward(S s);
 
     /**
-     *
      * @param t
      * @return
      */

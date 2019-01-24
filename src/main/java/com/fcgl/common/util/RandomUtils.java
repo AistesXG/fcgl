@@ -29,6 +29,7 @@ public final class RandomUtils {
 
     /**
      * 随机字母数字字符串
+     *
      * @param length 字符串长度
      * @return string
      */
@@ -43,6 +44,7 @@ public final class RandomUtils {
 
     /**
      * 随机六位数字字符串
+     *
      * @return string
      */
     public static String randomCode() {
@@ -56,6 +58,7 @@ public final class RandomUtils {
 
     /**
      * 500内的随机整数
+     *
      * @return int
      */
     public static int randomInt() {

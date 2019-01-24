@@ -33,7 +33,7 @@ public class UserController {
     @PostMapping(value = "${uri.users.list}")
     @ApiOperation(value = "用户分页列表", notes = "用户分页列表")
     public ResponseEntity<?> findAll(@RequestParam(required = false) Boolean enable,
-                                     @RequestParam(required = false) UserRoleEnum role,
+                                     @RequestParam(required = false) String role,
                                      @RequestBody @Valid ParamRequest request) {
         ApiResponse response = authService.findAll(enable, role, request);
         return ResponseEntity.ok(response);

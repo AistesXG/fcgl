@@ -108,16 +108,17 @@ public class UserService {
      * @param searchRequest
      * @return
      */
-    public Page<User> findAll(Boolean enable, UserRoleEnum role, PageRequest pageRequest, SearchRequest searchRequest) {
+    public Page<User> findAll(Boolean enable, String role, PageRequest pageRequest, SearchRequest searchRequest) {
         List<Predicate> predicates = new LinkedList<>();
         Page<User> page = userRepository.findAll((root, query, cb) -> {
             if (role != null) {
-                predicates.add(cb.equal(root.get(User_.role), role.name()));
+                predicates.add(cb.equal(root.get(User_.role), role));
             }
             if (enable != null) {
                 predicates.add(cb.equal(root.get(User_.enable), enable));
             }
             predicates.add(searchRequest.generatePredicate(root, cb));
+            predicates.add(cb.notEqual(root.get(User_.role), UserRoleEnum.ROLE_SUPER_ROOT.name()));
             return cb.and(predicates.toArray(new Predicate[predicates.size()]));
         }, pageRequest);
         return page;

@@ -128,7 +128,7 @@ public class AuthService {
      * @param request
      * @return
      */
-    public ApiResponse findAll(Boolean enable, UserRoleEnum role, ParamRequest request) {
+    public ApiResponse findAll(Boolean enable, String role, ParamRequest request) {
         Sort sort = new Sort(Sort.Direction.DESC, "createTime");
         PageRequest page = request.getPageDto().convertToPageRequest(sort);
         Page<User> list = userService.findAll(enable, role, page, request.getSearchRequest());

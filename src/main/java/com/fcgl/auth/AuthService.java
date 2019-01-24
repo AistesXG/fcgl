@@ -1,19 +1,23 @@
 package com.fcgl.auth;
 
 
+import com.fcgl.common.entity.ParamRequest;
+import com.fcgl.common.exception.BusinessException;
+import com.fcgl.common.exception.DataAccessException;
 import com.fcgl.common.util.RandomUtils;
+import com.fcgl.domain.entity.User;
+import com.fcgl.domain.service.UserService;
+import com.fcgl.messages.CodeMsg;
 import com.fcgl.response.ApiResponse;
 import com.fcgl.response.CodeMsgDataResponse;
 import com.fcgl.security.CurrentUser;
 import com.fcgl.security.JwtTokenUtils;
-import com.fcgl.common.exception.BusinessException;
-import com.fcgl.common.exception.DataAccessException;
-import com.fcgl.domain.entity.User;
-import com.fcgl.domain.service.UserDataService;
-import com.fcgl.messages.CodeMsg;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -38,7 +42,7 @@ public class AuthService {
     @Autowired
     private CodeMsg codeMsg;
     @Autowired
-    private UserDataService userDataService;
+    private UserService userService;
     @Autowired
     private UserDetailsService userDetailsService;
     @Autowired
@@ -52,7 +56,7 @@ public class AuthService {
     @Transactional(rollbackFor = {DataAccessException.class, BusinessException.class})
     public ApiResponse register(RegisterUserRequest request) {
 
-        if (userDataService.isUserExist(request.getAccount(), request.getMobile(), request.getEmail())) {
+        if (userService.isUserExist(request.getAccount(), request.getMobile(), request.getEmail())) {
             throw new BusinessException(codeMsg.userExistCode(), codeMsg.userExistMsg());
         }
         final String password = request.getPassword();
@@ -61,9 +65,8 @@ public class AuthService {
         User user = RegisterUserRequest.convertTo(request);
         user.setLastPwdRestDate(new Date());
         user.setUid(RandomUtils.randomString(30));
-        user.setRole(UserRoleEnum.TEACHER.name());
         user.setEnable(true);
-        return new CodeMsgDataResponse<>(codeMsg.successCode(), codeMsg.successMsg(), userDataService.saveUser(user));
+        return new CodeMsgDataResponse<>(codeMsg.successCode(), codeMsg.successMsg(), userService.saveUser(user));
     }
 
 
@@ -80,7 +83,7 @@ public class AuthService {
         try {
             authentication = authenticationManager.authenticate(upToken);
         } catch (DisabledException e) {
-            throw new BusinessException(codeMsg.failureCode(), "用户被禁用");
+            throw new BusinessException(codeMsg.userDisabledCode(), codeMsg.userDisabledMsg());
         } catch (Exception e) {
             throw new BusinessException(codeMsg.accountErrorCode(), codeMsg.accountErrorMsg());
         }
@@ -115,5 +118,20 @@ public class AuthService {
             return new CodeMsgDataResponse<>(codeMsg.successCode(), codeMsg.successMsg(), tokenResponse);
         }
         return new CodeMsgDataResponse(codeMsg.failureCode(), codeMsg.failureMsg());
+    }
+
+    /**
+     * 获取用户分页列表
+     *
+     * @param enable
+     * @param role
+     * @param request
+     * @return
+     */
+    public ApiResponse findAll(Boolean enable, UserRoleEnum role, ParamRequest request) {
+        Sort sort = new Sort(Sort.Direction.DESC, "createTime");
+        PageRequest page = request.getPageDto().convertToPageRequest(sort);
+        Page<User> list = userService.findAll(enable, role, page, request.getSearchRequest());
+        return new CodeMsgDataResponse<>(codeMsg.successCode(), codeMsg.successMsg(), list);
     }
 }

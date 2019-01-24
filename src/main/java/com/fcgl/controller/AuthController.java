@@ -1,9 +1,9 @@
 package com.fcgl.controller;
 
+import com.fcgl.auth.AuthService;
 import com.fcgl.auth.LoginRequest;
 import com.fcgl.auth.RegisterUserRequest;
 import com.fcgl.auth.UserRoleEnum;
-import com.fcgl.auth.AuthService;
 import com.fcgl.response.ApiResponse;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -41,7 +41,7 @@ public class AuthController {
 
     @PostMapping(value = "${uri.auth.register}")
     @ApiOperation(value = "注册", notes = "用户注册(管理员操作)")
-    @Secured({UserRoleEnum.ROLE_ROOT_VALUE, UserRoleEnum.SUPER_ROLE_ROOT_VALUE})
+    @Secured({UserRoleEnum.ROLE_ROOT_VALUE, UserRoleEnum.ROLE_SUPER_ROOT_VALUE})
     public ResponseEntity<?> register(@RequestBody @Valid RegisterUserRequest request) {
         ApiResponse apiResponse = authService.register(request);
         return ResponseEntity.ok(apiResponse);

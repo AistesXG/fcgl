@@ -2,7 +2,7 @@ package com.fcgl.security;
 
 
 import com.fcgl.domain.entity.User;
-import com.fcgl.domain.service.UserDataService;
+import com.fcgl.domain.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 public class CurrentUserDetailsServiceImpl implements UserDetailsService {
 
     @Autowired
-    private UserDataService userService;
+    private UserService userService;
     @Autowired
     private CurrentUserService currentUserService;
 

@@ -11,20 +11,25 @@ public enum UserRoleEnum {
     /**
      * 教师
      */
-    TEACHER,
+    ROLE_TEACHER,
 
     /**
      * 超级管理员用户
      */
-    SUPER_ROLE_ROOT,
+    ROLE_SUPER_ROOT,
 
     /**
      * 管理员用户
      */
-    ROLE_ROOT;
+    ROLE_ROOT,
 
-    public static final String TEACHER_VALUE = "TEACHER";
-    public static final String SUPER_ROLE_ROOT_VALUE = "SUPER_ROLE_ROOT";
+    /**
+     * 学生
+     */
+    ROLE_STUDENT;
+
+    public static final String ROLE_TEACHER_VALUE = "ROLE_TEACHER";
+    public static final String ROLE_SUPER_ROOT_VALUE = "ROLE_SUPER_ROOT";
     public static final String ROLE_ROOT_VALUE = "ROLE_ROOT";
-
+    public static final String ROLE_STUDENT_VALUE = "ROLE_STUDENT";
 }

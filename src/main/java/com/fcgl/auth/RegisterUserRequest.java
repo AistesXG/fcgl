@@ -7,10 +7,7 @@ import com.fcgl.domain.entity.User;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.*;
 
 
 /**
@@ -55,6 +52,12 @@ public class RegisterUserRequest {
      */
     @NotBlank
     private String password;
+
+    /**
+     * 角色
+     */
+    @NotNull
+    private String role;
 
     /**
      * 备注

@@ -51,6 +51,7 @@ public class CodeMsg {
         return message("response.failure.msg");
     }
 
+
     /**
      * 用户存在code
      *
@@ -67,6 +68,20 @@ public class CodeMsg {
      */
     public String userExistMsg() {
         return message("response.userExist.msg");
+    }
+
+    /**
+     * 用户被禁用code
+     */
+    public Integer userDisabledCode() {
+        return Integer.valueOf(message("response.userDisable.code"));
+    }
+
+    /**
+     * 用户被禁用msg
+     */
+    public String userDisabledMsg() {
+        return message("response.userDisable.msg");
     }
 
     /**

@@ -25,7 +25,7 @@ import static com.google.common.collect.Lists.newArrayList;
 @EnableSwagger2
 public class Swagger2Configuration {
 
-    private static final Set<String> DEFAULT_PROTOCOLS = Sets.newHashSet("http","https");
+    private static final Set<String> DEFAULT_PROTOCOLS = Sets.newHashSet("http", "https");
 
     private static final Set<String> DEAULT_PRODUCES_AND_CONSUMES = Sets.newHashSet("application/json");
 
@@ -40,7 +40,7 @@ public class Swagger2Configuration {
                 .apiInfo(apiInfo())
                 .produces(DEAULT_PRODUCES_AND_CONSUMES)
                 .consumes(DEAULT_PRODUCES_AND_CONSUMES)
-                .host("10.200.207:9000")
+                .host("10.200.0.207:9000")
                 .protocols(DEFAULT_PROTOCOLS)
                 .select()
                 .apis(RequestHandlerSelectors.basePackage("com.fcgl.controller"))

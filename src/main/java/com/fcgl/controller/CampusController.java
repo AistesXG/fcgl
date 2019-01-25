@@ -1,6 +1,8 @@
 package com.fcgl.controller;
 
 import com.fcgl.auth.UserRoleEnum;
+import com.fcgl.common.entity.ParamRequest;
+import com.fcgl.common.request.BatchDeleteRequest;
 import com.fcgl.domain.request.CampusRequest;
 import com.fcgl.domain.service.CampusService;
 import com.fcgl.response.ApiResponse;
@@ -9,9 +11,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
@@ -32,5 +32,24 @@ public class CampusController {
     public ResponseEntity<?> addCampus(@RequestBody @Valid CampusRequest request) {
         ApiResponse response = campusService.addCampus(request);
         return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping(value = "${uri.campus.batchDelete}")
+    @ApiOperation(value = "批量删除校区", notes = "批量删除校区")
+    public ResponseEntity<?> batchDelete(@RequestBody @Valid BatchDeleteRequest request) {
+        ApiResponse response = campusService.batchDelete(request);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping(value = "${uri.campus.list}")
+    @ApiOperation(value = "校区分页列表", notes = "校区分页列表")
+    public ResponseEntity<?> findAll(@RequestBody @Valid ParamRequest request) {
+        return ResponseEntity.ok(campusService.findAll(request));
+    }
+
+    @PostMapping(value = "${uri.campus.update}")
+    @ApiOperation(value = "编辑校区信息", notes = "编辑校区信息")
+    public ResponseEntity<?> update(@RequestParam String cid, @RequestBody @Valid CampusRequest request) {
+        return ResponseEntity.ok(campusService.update(cid, request));
     }
 }

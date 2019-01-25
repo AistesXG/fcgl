@@ -265,6 +265,33 @@ public class CodeMsg {
         return message("response.methodArgument.msg");
     }
 
+    /**
+     * 指定记录不存在code(用于提交了非法ID的情况)
+     */
+    public Integer recordNotFoundCode() {
+        return Integer.valueOf(message("response.recordNotFound.code"));
+    }
+
+    /**
+     * 指定记录不存在msg(用于提交了非法ID的情况)
+     */
+    public String recordNotFoundMsg() {
+        return message("response.recordNotFound.msg");
+    }
+
+    /**
+     * 记录存在code
+     */
+    public Integer recordAlreadyExistCode() {
+        return Integer.valueOf(message("response.recordAlreadyExist.code"));
+    }
+
+    /**
+     * 记录存在msg
+     */
+    public String recordAlreadyExistMsg() {
+        return message("response.recordAlreadyExist.msg");
+    }
 
     /**
      * 读取message

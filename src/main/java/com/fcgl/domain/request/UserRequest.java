@@ -12,7 +12,7 @@ import javax.validation.constraints.Pattern;
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
-public class UserUpdateRequest {
+public class UserRequest {
 
     /**
      * name

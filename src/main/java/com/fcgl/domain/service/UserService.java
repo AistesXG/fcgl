@@ -8,7 +8,7 @@ import com.fcgl.common.request.BatchDeleteRequest;
 import com.fcgl.domain.entity.User;
 import com.fcgl.domain.entity.User_;
 import com.fcgl.domain.repository.UserRepository;
-import com.fcgl.domain.request.UserUpdateRequest;
+import com.fcgl.domain.request.UserRequest;
 import com.fcgl.domain.response.UserResponse;
 import com.fcgl.messages.CodeMsg;
 import com.fcgl.response.ApiResponse;
@@ -131,7 +131,7 @@ public class UserService {
      * @param request
      * @return
      */
-    public ApiResponse updateUser(String uid, UserUpdateRequest request) {
+    public ApiResponse updateUser(String uid, UserRequest request) {
         User user = userRepository.findTopByUid(uid).orElseThrow(() -> new BusinessException(codeMsg.failureCode(), codeMsg.failureMsg()));
 
         //校验手机、邮箱、账户合法性

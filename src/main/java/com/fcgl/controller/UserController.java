@@ -4,7 +4,7 @@ import com.fcgl.auth.AuthService;
 import com.fcgl.auth.UserRoleEnum;
 import com.fcgl.common.entity.ParamRequest;
 import com.fcgl.common.request.BatchDeleteRequest;
-import com.fcgl.domain.request.UserUpdateRequest;
+import com.fcgl.domain.request.UserRequest;
 import com.fcgl.domain.service.UserService;
 import com.fcgl.response.ApiResponse;
 import io.swagger.annotations.Api;
@@ -42,7 +42,7 @@ public class UserController {
     @PostMapping(value = "${uri.users.update}")
     @ApiOperation(value = "更新用户信息", notes = "更新用户信息")
     public ResponseEntity<?> updateUser(@RequestParam String uid,
-                                        @RequestBody @Valid UserUpdateRequest request) {
+                                        @RequestBody @Valid UserRequest request) {
         ApiResponse response = userService.updateUser(uid, request);
         return ResponseEntity.ok(response);
     }

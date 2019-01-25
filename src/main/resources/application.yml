@@ -52,7 +52,10 @@ uri:
     batchDelete: "/api/v1/users/batchDelete"
     enable: "/api/v1/users/enable"
   campus:
+    list: "/api/v1/campus/list"
     add: "/api/v1/campus/add"
+    update: "/api/v1/campus/update"
+    batchDelete: "/api/v1/campus/batchDelete"
 
 # server 端口
 server:

@@ -6,6 +6,7 @@ import com.fcgl.common.exception.BusinessException;
 import com.fcgl.common.exception.DataAccessException;
 import com.fcgl.common.util.RandomUtils;
 import com.fcgl.domain.entity.User;
+import com.fcgl.domain.response.UserResponse;
 import com.fcgl.domain.service.UserService;
 import com.fcgl.messages.CodeMsg;
 import com.fcgl.response.ApiResponse;
@@ -13,9 +14,11 @@ import com.fcgl.response.CodeMsgDataResponse;
 import com.fcgl.security.CurrentUser;
 import com.fcgl.security.JwtTokenUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -29,6 +32,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * @author furg@senthink.com
@@ -130,7 +135,15 @@ public class AuthService {
     public ApiResponse findAll(Boolean enable, String role, ParamRequest request) {
         Sort sort = new Sort(Sort.Direction.DESC, "createTime");
         PageRequest page = request.getPageDto().convertToPageRequest(sort);
-        Page<User> list = userService.findAll(enable, role, page, request.getSearchRequest());
+        Page<User> userPage = userService.findAll(enable, role, page, request.getSearchRequest());
+        List<UserResponse> responses = new LinkedList<>();
+        for (User user : userPage.getContent()) {
+            UserResponse response = new UserResponse();
+            BeanUtils.copyProperties(user, response);
+            responses.add(response);
+        }
+        Page<UserResponse> list = new PageImpl<>(responses, request.getPageDto().convertToPageRequest(), userPage.getTotalElements());
+
         return new CodeMsgDataResponse<>(codeMsg.successCode(), codeMsg.successMsg(), list);
     }
 }

@@ -7,6 +7,7 @@ import com.fcgl.common.request.BatchDeleteRequest;
 import com.fcgl.common.util.RandomUtils;
 import com.fcgl.domain.entity.Campus;
 import com.fcgl.domain.repository.CampusRepository;
+import com.fcgl.domain.repository.UserRepository;
 import com.fcgl.domain.request.CampusRequest;
 import com.fcgl.messages.CodeMsg;
 import com.fcgl.response.ApiResponse;
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.criteria.Predicate;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 校区的Service
@@ -33,6 +35,8 @@ public class CampusService {
     @Autowired
     private CodeMsg codeMsg;
     @Autowired
+    private UserRepository userRepository;
+    @Autowired
     private CampusRepository campusRepository;
 
     /**
@@ -43,6 +47,9 @@ public class CampusService {
      */
     @Transactional(rollbackFor = {DataAccessException.class, BusinessException.class})
     public ApiResponse addCampus(CampusRequest request) {
+        if (campusRepository.countAllByName(request.getName()) > 0) {
+            throw new BusinessException(codeMsg.recordAlreadyExistCode(), codeMsg.recordAlreadyExistMsg());
+        }
         Campus campus = new Campus();
         BeanUtils.copyProperties(request, campus);
         campus.setCid(RandomUtils.randomString(30));
@@ -65,6 +72,18 @@ public class CampusService {
     }
 
     /**
+     * 查找校区
+     *
+     * @param cid
+     * @return
+     */
+    public ApiResponse findOne(String cid) {
+        Campus campus = campusRepository.findTopByCid(cid).orElseThrow(() ->
+                new BusinessException(codeMsg.recordNotFoundCode(), codeMsg.recordNotFoundMsg()));
+        return new CodeMsgDataResponse<>(codeMsg.successCode(), codeMsg.successMsg(), campus);
+    }
+
+    /**
      * 校区分页列表
      *
      * @param request
@@ -75,6 +94,17 @@ public class CampusService {
         return new CodeMsgDataResponse<>(codeMsg.successCode(), codeMsg.successMsg(), list);
     }
 
+    /**
+     * 查找校区的cid列表
+     *
+     * @return
+     */
+    public ApiResponse findAllCids() {
+        List<String> cids = campusRepository.findAll().stream()
+                .map(Campus::getCid)
+                .collect(Collectors.toList());
+        return new CodeMsgDataResponse<>(codeMsg.successCode(), codeMsg.successMsg(), cids);
+    }
 
     /**
      * 编辑校区

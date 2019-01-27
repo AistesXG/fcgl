@@ -21,7 +21,7 @@ import javax.validation.Valid;
  * @date 2019/1/24
  */
 @RestController
-@Api(tags = "USER", description = "用户管理")
+@Api(tags = "User", description = "用户管理")
 @Secured({UserRoleEnum.ROLE_ROOT_VALUE, UserRoleEnum.ROLE_SUPER_ROOT_VALUE})
 public class UserController {
 

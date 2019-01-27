@@ -55,7 +55,15 @@ uri:
     list: "/api/v1/campus/list"
     add: "/api/v1/campus/add"
     update: "/api/v1/campus/update"
+    detail: "/api/v1/campus/detail"
     batchDelete: "/api/v1/campus/batchDelete"
+    cidList: "/api/v1/campus/cidList"
+  dorms:
+    list: "/api/v1/dorms/list"
+    add: "/api/v1/dorms/add"
+    update: "/api/v1/dorms/update"
+    detail: "/api/v1/dorms/detail"
+    batchDelete: "/api/v1/dorms/batchDelete"
 
 # server 端口
 server:

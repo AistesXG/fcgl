@@ -2,6 +2,7 @@ package com.fcgl.common.request;
 
 import lombok.Data;
 
+import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
 /**
@@ -14,5 +15,6 @@ public class BatchDeleteRequest {
     /**
      * 唯一id列表
      */
+    @NotEmpty
     List<String> ids;
 }

@@ -61,7 +61,6 @@ public class AuthService {
         }
         final String password = request.getPassword();
         request.setPassword(passwordEncoder.encode(password));
-
         User user = RegisterUserRequest.convertTo(request);
         user.setLastPwdRestDate(new Date());
         user.setUid(RandomUtils.randomString(30));

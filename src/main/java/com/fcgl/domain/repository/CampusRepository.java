@@ -20,4 +20,6 @@ public interface CampusRepository extends JpaRepository<Campus, Long>, JpaSpecif
     long countAllByName(String name);
 
     long deleteAllByCidIn(List<String> cids);
+
+    List<Campus> findAllByCidIn(List<String> cids);
 }

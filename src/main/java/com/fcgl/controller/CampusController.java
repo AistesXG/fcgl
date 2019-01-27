@@ -52,4 +52,16 @@ public class CampusController {
     public ResponseEntity<?> update(@RequestParam String cid, @RequestBody @Valid CampusRequest request) {
         return ResponseEntity.ok(campusService.update(cid, request));
     }
+
+    @GetMapping(value = "${uri.campus.detail}")
+    @ApiOperation(value = "校区详情", notes = "校区详情")
+    public ResponseEntity<?> detail(@RequestParam String cid) {
+        return ResponseEntity.ok(campusService.findOne(cid));
+    }
+
+    @GetMapping(value = "${uri.campus.cidList}")
+    @ApiOperation(value = "获取校区的cid列表", notes = "获取校区的cid列表")
+    public ResponseEntity<?> cidList() {
+        return ResponseEntity.ok(campusService.findAllCids());
+    }
 }

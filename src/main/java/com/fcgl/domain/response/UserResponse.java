@@ -1,6 +1,10 @@
 package com.fcgl.domain.response;
 
+import com.fcgl.domain.entity.Campus;
 import lombok.Data;
+
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author furg@senthink.com
@@ -38,6 +42,11 @@ public class UserResponse {
      * 角色字符串
      */
     private String role;
+
+    /**
+     * 校区
+     */
+    private Set<Campus> campus;
 
     /**
      * 备注

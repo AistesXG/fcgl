@@ -1,12 +1,19 @@
 package com.fcgl.domain.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fcgl.common.entity.BornableEntity;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.Entity;
 import javax.persistence.Index;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
+import java.util.List;
+import java.util.Set;
 
 /**
  * 校区
@@ -42,4 +49,11 @@ public class Campus extends BornableEntity<Long> {
      * 校区的坐落
      */
     private String location;
+
+    /**
+     * 对应的user
+     */
+    @ManyToMany(mappedBy = "campus")
+    @JsonIgnore
+    private Set<User> users;
 }

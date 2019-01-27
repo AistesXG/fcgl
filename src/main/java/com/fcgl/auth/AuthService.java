@@ -5,7 +5,9 @@ import com.fcgl.common.entity.ParamRequest;
 import com.fcgl.common.exception.BusinessException;
 import com.fcgl.common.exception.DataAccessException;
 import com.fcgl.common.util.RandomUtils;
+import com.fcgl.domain.entity.Campus;
 import com.fcgl.domain.entity.User;
+import com.fcgl.domain.repository.CampusRepository;
 import com.fcgl.domain.response.UserResponse;
 import com.fcgl.domain.service.UserService;
 import com.fcgl.messages.CodeMsg;
@@ -31,9 +33,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author furg@senthink.com
@@ -56,6 +56,8 @@ public class AuthService {
     private PasswordEncoder passwordEncoder;
     @Autowired
     private AuthenticationManager authenticationManager;
+    @Autowired
+    private CampusRepository campusRepository;
 
 
     @Transactional(rollbackFor = {DataAccessException.class, BusinessException.class})
@@ -64,9 +66,14 @@ public class AuthService {
         if (userService.isUserExist(request.getAccount(), request.getMobile(), request.getEmail())) {
             throw new BusinessException(codeMsg.userExistCode(), codeMsg.userExistMsg());
         }
+        List<Campus> campuses = campusRepository.findAllByCidIn(request.getCids());
+        Set<Campus> campusSet = new HashSet<>(campuses);
         final String password = request.getPassword();
         request.setPassword(passwordEncoder.encode(password));
         User user = RegisterUserRequest.convertTo(request);
+        if (campusSet.size() > 0) {
+            user.setCampus(campusSet);
+        }
         user.setLastPwdRestDate(new Date());
         user.setUid(RandomUtils.randomString(30));
         user.setEnable(true);

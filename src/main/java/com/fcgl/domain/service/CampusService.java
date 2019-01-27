@@ -9,12 +9,14 @@ import com.fcgl.domain.entity.Campus;
 import com.fcgl.domain.repository.CampusRepository;
 import com.fcgl.domain.repository.UserRepository;
 import com.fcgl.domain.request.CampusRequest;
+import com.fcgl.domain.response.CampusResponse;
 import com.fcgl.messages.CodeMsg;
 import com.fcgl.response.ApiResponse;
 import com.fcgl.response.CodeMsgDataResponse;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -90,7 +92,14 @@ public class CampusService {
      * @return
      */
     public ApiResponse findAll(ParamRequest request) {
-        Page<Campus> list = getPage(request);
+        Page<Campus> page = getPage(request);
+        List<CampusResponse> responses = new LinkedList<>();
+        for (Campus campus : page.getContent()) {
+            CampusResponse response = new CampusResponse();
+            BeanUtils.copyProperties(campus, response);
+            responses.add(response);
+        }
+        Page<CampusResponse> list = new PageImpl<>(responses, request.getPageDto().convertToPageRequest(), page.getTotalElements());
         return new CodeMsgDataResponse<>(codeMsg.successCode(), codeMsg.successMsg(), list);
     }
 

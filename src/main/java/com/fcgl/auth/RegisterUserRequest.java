@@ -8,6 +8,7 @@ import lombok.Data;
 import org.springframework.beans.BeanUtils;
 
 import javax.validation.constraints.*;
+import java.util.List;
 
 
 /**
@@ -52,6 +53,11 @@ public class RegisterUserRequest {
      */
     @NotBlank
     private String password;
+
+    /**
+     * 校区cid列表
+     */
+    private List<String> cids;
 
     /**
      * 角色

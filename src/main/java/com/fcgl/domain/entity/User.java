@@ -1,15 +1,17 @@
 package com.fcgl.domain.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fcgl.common.entity.BornableEntity;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Index;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author furg@senthink.com
@@ -79,6 +81,14 @@ public class User extends BornableEntity<Long> {
      */
     @Column(name = "enable")
     private boolean enable;
+
+    /**
+     * 用户对应的校区
+     */
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(name = "user_campus", joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
+            inverseJoinColumns = {@JoinColumn(name = "campus_id", referencedColumnName = "id")})
+    private Set<Campus> campus;
 
     /**
      * 备注

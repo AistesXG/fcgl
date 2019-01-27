@@ -5,8 +5,10 @@ import com.fcgl.common.entity.SearchRequest;
 import com.fcgl.common.exception.BusinessException;
 import com.fcgl.common.exception.DataAccessException;
 import com.fcgl.common.request.BatchDeleteRequest;
+import com.fcgl.domain.entity.Campus;
 import com.fcgl.domain.entity.User;
 import com.fcgl.domain.entity.User_;
+import com.fcgl.domain.repository.CampusRepository;
 import com.fcgl.domain.repository.UserRepository;
 import com.fcgl.domain.request.UserRequest;
 import com.fcgl.domain.response.UserResponse;
@@ -23,9 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.Predicate;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * @author furg@senthink.com
@@ -40,7 +40,8 @@ public class UserService {
     private CodeMsg codeMsg;
     @Autowired
     private PasswordEncoder passwordEncoder;
-
+    @Autowired
+    private CampusRepository campusRepository;
 
     /**
      * 查找用户信息
@@ -157,8 +158,13 @@ public class UserService {
             request.setPassword(user.getPassword());
         }
         BeanUtils.copyProperties(request, user);
-        user = userRepository.save(user);
 
+        List<Campus> campuses = campusRepository.findAllByCidIn(request.getCids());
+        Set<Campus> campusSet = new HashSet<>(campuses);
+        if (campusSet.size() > 0) {
+            user.setCampus(campusSet);
+        }
+        user = userRepository.save(user);
         return new CodeMsgDataResponse<>(codeMsg.successCode(), codeMsg.successMsg(), toUserResponse(user));
     }
 

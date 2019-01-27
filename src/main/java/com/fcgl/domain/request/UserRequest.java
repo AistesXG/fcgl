@@ -1,10 +1,12 @@
 package com.fcgl.domain.request;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fcgl.domain.entity.Campus;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
+import java.util.List;
 
 /**
  * @author furg@senthink.com
@@ -43,6 +45,11 @@ public class UserRequest {
      * 密码
      */
     private String password;
+
+    /**
+     * 校区
+     */
+    private List<String> cids;
 
     /**
      * 角色

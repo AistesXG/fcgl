@@ -1,6 +1,8 @@
 package com.fcgl.domain.response;
 
+import com.fcgl.domain.entity.User;
 import lombok.Data;
+import java.util.Set;
 
 /**
  * @author furg@senthink.com
@@ -28,4 +30,9 @@ public class CampusResponse {
      * 校区的坐落
      */
     private String location;
+
+    /**
+     * user
+     */
+    private Set<User> users;
 }

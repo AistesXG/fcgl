@@ -1,18 +1,11 @@
 package com.fcgl.domain.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fcgl.common.entity.BornableEntity;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.Entity;
-import javax.persistence.Index;
-import javax.persistence.ManyToMany;
-import javax.persistence.Table;
-import java.util.List;
+import javax.persistence.*;
 import java.util.Set;
 
 /**
@@ -53,7 +46,7 @@ public class Campus extends BornableEntity<Long> {
     /**
      * 对应的user
      */
-    @ManyToMany(mappedBy = "campus")
+    @ManyToMany(mappedBy = "campus", cascade = {CascadeType.MERGE, CascadeType.PERSIST}, targetEntity = User.class)
     @JsonIgnore
     private Set<User> users;
 }

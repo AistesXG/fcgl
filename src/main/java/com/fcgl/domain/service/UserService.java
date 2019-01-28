@@ -158,6 +158,10 @@ public class UserService {
             request.setPassword(user.getPassword());
         }
         BeanUtils.copyProperties(request, user);
+        //先去除校区
+        for (Campus campus : user.getCampus()) {
+            user.getCampus().remove(campus);
+        }
 
         List<Campus> campuses = campusRepository.findAllByCidIn(request.getCids());
         Set<Campus> campusSet = new HashSet<>(campuses);

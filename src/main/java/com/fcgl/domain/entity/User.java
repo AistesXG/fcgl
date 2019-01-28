@@ -85,7 +85,7 @@ public class User extends BornableEntity<Long> {
     /**
      * 用户对应的校区
      */
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(cascade = {CascadeType.MERGE,CascadeType.PERSIST}, targetEntity = Campus.class)
     @JoinTable(name = "user_campus", joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
             inverseJoinColumns = {@JoinColumn(name = "campus_id", referencedColumnName = "id")})
     private Set<Campus> campus;

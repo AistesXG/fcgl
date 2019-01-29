@@ -1,7 +1,6 @@
 package com.fcgl.domain.request;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fcgl.domain.entity.Campus;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
@@ -50,6 +49,11 @@ public class UserRequest {
      * 校区
      */
     private List<String> cids;
+
+    /**
+     * 宿舍
+     */
+    private String did;
 
     /**
      * 角色

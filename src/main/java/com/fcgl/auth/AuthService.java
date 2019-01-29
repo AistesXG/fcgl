@@ -6,8 +6,10 @@ import com.fcgl.common.exception.BusinessException;
 import com.fcgl.common.exception.DataAccessException;
 import com.fcgl.common.util.RandomUtils;
 import com.fcgl.domain.entity.Campus;
+import com.fcgl.domain.entity.Dorm;
 import com.fcgl.domain.entity.User;
 import com.fcgl.domain.repository.CampusRepository;
+import com.fcgl.domain.repository.DormRepository;
 import com.fcgl.domain.response.UserResponse;
 import com.fcgl.domain.service.UserService;
 import com.fcgl.messages.CodeMsg;
@@ -58,6 +60,8 @@ public class AuthService {
     private AuthenticationManager authenticationManager;
     @Autowired
     private CampusRepository campusRepository;
+    @Autowired
+    private DormRepository dormRepository;
 
 
     @Transactional(rollbackFor = {DataAccessException.class, BusinessException.class})
@@ -67,6 +71,7 @@ public class AuthService {
             throw new BusinessException(codeMsg.userExistCode(), codeMsg.userExistMsg());
         }
         List<Campus> campuses = campusRepository.findAllByCidIn(request.getCids());
+        Dorm dorm = dormRepository.findByDid(request.getDid());
         Set<Campus> campusSet = new HashSet<>(campuses);
         final String password = request.getPassword();
         request.setPassword(passwordEncoder.encode(password));
@@ -74,10 +79,19 @@ public class AuthService {
         if (campusSet.size() > 0) {
             user.setCampus(campusSet);
         }
+        if (dorm != null) {
+            //更新宿舍楼的状态为true
+            dorm.setStatus(true);
+            dormRepository.save(dorm);
+            user.setDorm(dorm);
+        }
         user.setLastPwdRestDate(new Date());
         user.setUid(RandomUtils.randomString(30));
         user.setEnable(true);
-        return new CodeMsgDataResponse<>(codeMsg.successCode(), codeMsg.successMsg(), userService.saveUser(user));
+        userService.saveUser(user);
+        UserResponse response = new UserResponse();
+        BeanUtils.copyProperties(user, response);
+        return new CodeMsgDataResponse<>(codeMsg.successCode(), codeMsg.successMsg(), response);
     }
 
 

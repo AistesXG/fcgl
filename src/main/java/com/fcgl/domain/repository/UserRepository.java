@@ -1,6 +1,7 @@
 package com.fcgl.domain.repository;
 
 
+import com.fcgl.domain.entity.Dorm;
 import com.fcgl.domain.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -26,7 +27,9 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
 
     List<User> findByEmail(String email);
 
-    long deleteAllByUidIn(List<String> uids);
+    void deleteAllByUidIn(List<String> uids);
 
     List<User> findAllByUidIn(List<String> uids);
+
+    long countByDorm(Dorm dorm);
 }

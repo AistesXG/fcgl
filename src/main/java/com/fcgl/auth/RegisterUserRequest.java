@@ -60,6 +60,11 @@ public class RegisterUserRequest {
     private List<String> cids;
 
     /**
+     * 校区
+     */
+    private String did;
+
+    /**
      * 角色
      */
     @NotNull

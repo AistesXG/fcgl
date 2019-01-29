@@ -17,7 +17,11 @@ public interface DormRepository extends JpaRepository<Dorm, Long>, JpaSpecificat
 
     Optional<Dorm> findTopByDid(String did);
 
+    Dorm findByDid(String did);
+
     long countAllByDn(String dn);
 
-    long deleteAllByDidIn(List<String> dids);
+    void deleteAllByDidIn(List<String> dids);
+
+    List<Dorm> findAllByDidIn(List<String> dids);
 }

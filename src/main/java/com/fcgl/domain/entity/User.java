@@ -1,16 +1,12 @@
 package com.fcgl.domain.entity;
 
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fcgl.common.entity.BornableEntity;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.Date;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -80,15 +76,22 @@ public class User extends BornableEntity<Long> {
      * 启用/禁用
      */
     @Column(name = "enable")
-    private boolean enable;
+    private Boolean enable;
 
     /**
      * 用户对应的校区
      */
-    @ManyToMany(cascade = {CascadeType.MERGE,CascadeType.PERSIST}, targetEntity = Campus.class)
+    @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST}, targetEntity = Campus.class)
     @JoinTable(name = "user_campus", joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
             inverseJoinColumns = {@JoinColumn(name = "campus_id", referencedColumnName = "id")})
     private Set<Campus> campus;
+
+    /**
+     * 用户对应的宿舍
+     */
+    @ManyToOne(targetEntity = Dorm.class)
+    @JoinColumn(name = "dorm", referencedColumnName = "id")
+    private Dorm dorm;
 
     /**
      * 备注

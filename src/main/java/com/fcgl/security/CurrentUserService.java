@@ -29,6 +29,6 @@ public class CurrentUserService {
                 user.getPassword(),
                 user.getLastPwdRestDate(),
                 user.getRole(),
-                user.isEnable());
+                user.getEnable());
     }
 }

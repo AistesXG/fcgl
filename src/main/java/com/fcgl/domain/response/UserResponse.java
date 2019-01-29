@@ -1,9 +1,10 @@
 package com.fcgl.domain.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fcgl.domain.entity.Campus;
+import com.fcgl.domain.entity.Dorm;
 import lombok.Data;
 
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -11,6 +12,7 @@ import java.util.Set;
  * @date 2019/1/24
  */
 @Data
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserResponse {
 
     /**
@@ -47,6 +49,11 @@ public class UserResponse {
      * 校区
      */
     private Set<Campus> campus;
+
+    /**
+     * 宿舍楼
+     */
+    private Dorm dorm;
 
     /**
      * 备注

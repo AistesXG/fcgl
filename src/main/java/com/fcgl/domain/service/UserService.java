@@ -6,9 +6,11 @@ import com.fcgl.common.exception.BusinessException;
 import com.fcgl.common.exception.DataAccessException;
 import com.fcgl.common.request.BatchDeleteRequest;
 import com.fcgl.domain.entity.Campus;
+import com.fcgl.domain.entity.Dorm;
 import com.fcgl.domain.entity.User;
 import com.fcgl.domain.entity.User_;
 import com.fcgl.domain.repository.CampusRepository;
+import com.fcgl.domain.repository.DormRepository;
 import com.fcgl.domain.repository.UserRepository;
 import com.fcgl.domain.request.UserRequest;
 import com.fcgl.domain.response.UserResponse;
@@ -26,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.Predicate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author furg@senthink.com
@@ -42,6 +45,8 @@ public class UserService {
     private PasswordEncoder passwordEncoder;
     @Autowired
     private CampusRepository campusRepository;
+    @Autowired
+    private DormRepository dormRepository;
 
     /**
      * 查找用户信息
@@ -158,18 +163,40 @@ public class UserService {
             request.setPassword(user.getPassword());
         }
         BeanUtils.copyProperties(request, user);
-        //先去除校区
+        //初始化更新的user
+        user = initUpdateUser(request, user);
+        user = userRepository.save(user);
+        return new CodeMsgDataResponse<>(codeMsg.successCode(), codeMsg.successMsg(), toUserResponse(user));
+    }
+
+    /**
+     * 获得更新时所需的user
+     *
+     * @param request
+     * @param user
+     * @return
+     */
+    private User initUpdateUser(UserRequest request, User user) {
+        //去除校区
         for (Campus campus : user.getCampus()) {
             user.getCampus().remove(campus);
         }
-
+        //先将dorm设置为null
+        user.setDorm(null);
         List<Campus> campuses = campusRepository.findAllByCidIn(request.getCids());
+        Dorm dorm = dormRepository.findByDid(request.getDid());
         Set<Campus> campusSet = new HashSet<>(campuses);
         if (campusSet.size() > 0) {
             user.setCampus(campusSet);
         }
+        if (dorm != null) {
+            ////更新宿舍楼的状态为true
+            dorm.setStatus(true);
+            dormRepository.save(dorm);
+            user.setDorm(dorm);
+        }
         user = userRepository.save(user);
-        return new CodeMsgDataResponse<>(codeMsg.successCode(), codeMsg.successMsg(), toUserResponse(user));
+        return user;
     }
 
     /**
@@ -192,12 +219,20 @@ public class UserService {
      */
     @Transactional
     public ApiResponse batchDelete(BatchDeleteRequest request) {
-        long count = userRepository.deleteAllByUidIn(request.getIds());
-        if (count > 0) {
-            return new CodeMsgDataResponse<>(codeMsg.successCode(), codeMsg.successMsg(), count);
+        //将dorm中的状态设置为false
+        List<User> users = userRepository.findAllByUidIn(request.getIds());
+        Set<Dorm> dorms = users.stream().map(User::getDorm)
+                .collect(Collectors.toSet());
+        for (Dorm dorm : dorms) {
+            if (userRepository.countByDorm(dorm) == 1) {
+                dorm.setStatus(false);
+                dormRepository.save(dorm);
+            }
         }
-        throw new BusinessException(codeMsg.accountNotExistCode(), codeMsg.accountNotExistMsg());
+        userRepository.deleteAllByUidIn(request.getIds());
+        return new CodeMsgDataResponse<>(codeMsg.successCode(), codeMsg.successMsg());
     }
+
 
     /**
      * 启用或者禁用用户
@@ -225,5 +260,4 @@ public class UserService {
         BeanUtils.copyProperties(user, response);
         return response;
     }
-
 }

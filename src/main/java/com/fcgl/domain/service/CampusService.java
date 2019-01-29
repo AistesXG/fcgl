@@ -6,7 +6,6 @@ import com.fcgl.common.exception.DataAccessException;
 import com.fcgl.common.request.BatchDeleteRequest;
 import com.fcgl.common.util.RandomUtils;
 import com.fcgl.domain.entity.Campus;
-import com.fcgl.domain.entity.User;
 import com.fcgl.domain.repository.CampusRepository;
 import com.fcgl.domain.repository.UserRepository;
 import com.fcgl.domain.request.CampusRequest;

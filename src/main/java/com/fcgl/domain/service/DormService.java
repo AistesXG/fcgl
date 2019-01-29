@@ -6,20 +6,24 @@ import com.fcgl.common.exception.DataAccessException;
 import com.fcgl.common.request.BatchDeleteRequest;
 import com.fcgl.common.util.RandomUtils;
 import com.fcgl.domain.entity.Dorm;
+import com.fcgl.domain.entity.User;
 import com.fcgl.domain.repository.DormRepository;
 import com.fcgl.domain.request.DormRequest;
+import com.fcgl.domain.response.DormResponse;
 import com.fcgl.messages.CodeMsg;
 import com.fcgl.response.ApiResponse;
 import com.fcgl.response.CodeMsgDataResponse;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.Predicate;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Dorm的Service
@@ -53,6 +57,7 @@ public class DormService {
         Dorm dorm = new Dorm();
         BeanUtils.copyProperties(request, dorm);
         dorm.setDid(RandomUtils.randomString(30));
+        dorm.setStatus(false);
         return new CodeMsgDataResponse<>(codeMsg.successCode(), codeMsg.successMsg(), dormRepository.save(dorm));
     }
 
@@ -65,11 +70,25 @@ public class DormService {
      */
     @Transactional
     public ApiResponse batchDelete(BatchDeleteRequest request) {
-        long count = dormRepository.deleteAllByDidIn(request.getIds());
-        if (count > 0) {
-            return new CodeMsgDataResponse<>(codeMsg.successCode(), codeMsg.successMsg(), count);
-        }
-        throw new BusinessException(codeMsg.failureCode(), codeMsg.failureMsg());
+        //删除的时候在用的不删除
+        List<Dorm> dorms = dormRepository.findAllByDidIn(request.getIds());
+        List<String> dids = dorms.stream()
+                .filter(t -> !t.getStatus())
+                .map(Dorm::getDid)
+                .collect(Collectors.toList());
+//要想删除再用的，去掉下面的注释
+//        for (Dorm dorm : dorms) {
+//            if (!dorm.getStatus()) {
+//                List<User> users = dorm.getUsers();
+//                //解除user中的级联关系
+//                for (User user : users) {
+//                    user.setDorm(null);
+//                    userRepository.save(user);
+//                }
+//            }
+//        }
+        dormRepository.deleteAllByDidIn(dids);
+        return new CodeMsgDataResponse<>(codeMsg.successCode(), codeMsg.successMsg());
     }
 
     /**
@@ -102,7 +121,25 @@ public class DormService {
     public ApiResponse findOne(String did) {
         Dorm dorm = dormRepository.findTopByDid(did).orElseThrow(() ->
                 new BusinessException(codeMsg.recordNotFoundCode(), codeMsg.recordNotFoundMsg()));
-        return new CodeMsgDataResponse<>(codeMsg.successCode(), codeMsg.successMsg(), dorm);
+        DormResponse response = new DormResponse();
+        BeanUtils.copyProperties(dorm, response);
+        response = initUserNames(dorm, response);
+        return new CodeMsgDataResponse<>(codeMsg.successCode(), codeMsg.successMsg(), response);
+    }
+
+    /**
+     * 获得宿舍所使用的userName
+     *
+     * @param dorm
+     * @param response
+     */
+    private DormResponse initUserNames(Dorm dorm, DormResponse response) {
+        if (dorm.getUsers().size() > 0) {
+            response.setUserNames(dorm.getUsers().stream()
+                    .map(User::getName)
+                    .collect(Collectors.toList()));
+        }
+        return response;
     }
 
     /**
@@ -112,7 +149,15 @@ public class DormService {
      * @return
      */
     public ApiResponse findAll(ParamRequest request) {
-        Page<Dorm> list = getPage(request);
+        Page<Dorm> page = getPage(request);
+        List<DormResponse> responses = new LinkedList<>();
+        for (Dorm dorm : page.getContent()) {
+            DormResponse response = new DormResponse();
+            BeanUtils.copyProperties(dorm, response);
+            response = initUserNames(dorm, response);
+            responses.add(response);
+        }
+        Page<DormResponse> list = new PageImpl<>(responses, request.getPageDto().convertToPageRequest(), page.getTotalElements());
         return new CodeMsgDataResponse<>(codeMsg.successCode(), codeMsg.successMsg(), list);
     }
 

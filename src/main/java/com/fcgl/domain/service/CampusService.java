@@ -6,10 +6,12 @@ import com.fcgl.common.exception.DataAccessException;
 import com.fcgl.common.request.BatchDeleteRequest;
 import com.fcgl.common.util.RandomUtils;
 import com.fcgl.domain.entity.Campus;
+import com.fcgl.domain.entity.Dorm;
 import com.fcgl.domain.repository.CampusRepository;
 import com.fcgl.domain.repository.UserRepository;
 import com.fcgl.domain.request.CampusRequest;
 import com.fcgl.domain.response.CampusResponse;
+import com.fcgl.domain.response.UserResponse;
 import com.fcgl.messages.CodeMsg;
 import com.fcgl.response.ApiResponse;
 import com.fcgl.response.CodeMsgDataResponse;
@@ -21,8 +23,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.Predicate;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -34,12 +38,18 @@ import java.util.stream.Collectors;
 @Service
 public class CampusService {
 
+    private final CodeMsg codeMsg;
+    private final UserRepository userRepository;
+    private final CampusRepository campusRepository;
+    private final DormService dormService;
+
     @Autowired
-    private CodeMsg codeMsg;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private CampusRepository campusRepository;
+    public CampusService(CodeMsg codeMsg, UserRepository userRepository, CampusRepository campusRepository, DormService dormService) {
+        this.codeMsg = codeMsg;
+        this.userRepository = userRepository;
+        this.campusRepository = campusRepository;
+        this.dormService = dormService;
+    }
 
     /**
      * 添加校区
@@ -66,6 +76,15 @@ public class CampusService {
      */
     @Transactional
     public ApiResponse batchDelete(BatchDeleteRequest request) {
+        List<Campus> campuses = campusRepository.findAllByCidIn(request.getIds());
+        for (Campus campus : campuses) {
+            Set<String> didSet = campus.getDorms().stream()
+                    .map(Dorm::getDid)
+                    .collect(Collectors.toSet());
+            BatchDeleteRequest didRequest = new BatchDeleteRequest();
+            didRequest.setIds(new LinkedList<>(didSet));
+            dormService.batchDelete(didRequest);
+        }
         long count = campusRepository.deleteAllByCidIn(request.getIds());
         if (count > 0) {
             return new CodeMsgDataResponse<>(codeMsg.successCode(), codeMsg.successMsg(), count);
@@ -82,7 +101,8 @@ public class CampusService {
     public ApiResponse findOne(String cid) {
         Campus campus = campusRepository.findTopByCid(cid).orElseThrow(() ->
                 new BusinessException(codeMsg.recordNotFoundCode(), codeMsg.recordNotFoundMsg()));
-        return new CodeMsgDataResponse<>(codeMsg.successCode(), codeMsg.successMsg(), campus);
+        CampusResponse response = initCampusResponse(campus);
+        return new CodeMsgDataResponse<>(codeMsg.successCode(), codeMsg.successMsg(), response);
     }
 
     /**
@@ -95,12 +115,31 @@ public class CampusService {
         Page<Campus> page = getPage(request);
         List<CampusResponse> responses = new LinkedList<>();
         for (Campus campus : page.getContent()) {
-            CampusResponse response = new CampusResponse();
-            BeanUtils.copyProperties(campus, response);
+            CampusResponse response = initCampusResponse(campus);
             responses.add(response);
         }
         Page<CampusResponse> list = new PageImpl<>(responses, request.getPageDto().convertToPageRequest(), page.getTotalElements());
         return new CodeMsgDataResponse<>(codeMsg.successCode(), codeMsg.successMsg(), list);
+    }
+
+    /**
+     * 初始化campusResponse
+     *
+     * @param campus
+     * @return
+     */
+    private CampusResponse initCampusResponse(Campus campus) {
+        CampusResponse response = new CampusResponse();
+        BeanUtils.copyProperties(campus, response);
+        Set<UserResponse> userResponse = new LinkedHashSet<>();
+        campus.getUsers().forEach(user -> {
+            UserResponse userResponse1 = new UserResponse();
+            BeanUtils.copyProperties(user, userResponse1);
+            userResponse.add(userResponse1);
+        });
+        response.setUsers(userResponse);
+        response.setDormDns(campus.getDorms().stream().map(Dorm::getDn).collect(Collectors.toList()));
+        return response;
     }
 
     /**

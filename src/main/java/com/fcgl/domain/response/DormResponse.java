@@ -1,6 +1,7 @@
 package com.fcgl.domain.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fcgl.domain.entity.Campus;
 import lombok.Data;
 
 import java.util.List;
@@ -37,4 +38,9 @@ public class DormResponse {
      * 用户
      */
     private List<String> userNames;
+
+    /**
+     * 校区
+     */
+    private Campus campus;
 }

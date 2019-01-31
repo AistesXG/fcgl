@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fcgl.domain.entity.User;
 import lombok.Data;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -37,5 +38,10 @@ public class CampusResponse {
     /**
      * user
      */
-    private Set<User> users;
+    private Set<UserResponse> users;
+
+    /**
+     * 宿舍的名称
+     */
+    private List<String> dormDns;
 }

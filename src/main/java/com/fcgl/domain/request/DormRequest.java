@@ -24,4 +24,10 @@ public class DormRequest {
      */
     @NotBlank
     private String location;
+
+    /**
+     * 校区的id
+     */
+    @NotBlank
+    private String cid;
 }

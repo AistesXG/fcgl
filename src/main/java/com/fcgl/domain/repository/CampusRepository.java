@@ -22,4 +22,6 @@ public interface CampusRepository extends JpaRepository<Campus, Long>, JpaSpecif
     long deleteAllByCidIn(List<String> cids);
 
     List<Campus> findAllByCidIn(List<String> cids);
+
+    Campus findByCid(String cid);
 }

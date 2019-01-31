@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -49,4 +50,11 @@ public class Campus extends BornableEntity<Long> {
     @ManyToMany(mappedBy = "campus", cascade = {CascadeType.MERGE, CascadeType.PERSIST}, targetEntity = User.class)
     @JsonIgnore
     private Set<User> users;
+
+    /**
+     * 宿舍
+     */
+    @OneToMany(mappedBy = "campus", targetEntity = Dorm.class)
+    @JsonIgnore
+    private List<Dorm> dorms;
 }

@@ -47,7 +47,17 @@ public class Dorm extends BornableEntity<Long> {
     @Column(name = "status", nullable = false)
     private Boolean status;
 
-    @OneToMany(mappedBy = "dorm")
+    /**
+     * 用户
+     */
+    @OneToMany(mappedBy = "dorm", targetEntity = User.class)
     @JsonIgnore
     private List<User> users;
+
+    /**
+     * 校区
+     */
+    @ManyToOne(targetEntity = Campus.class)
+    @JoinColumn(name = "campus", referencedColumnName = "id")
+    private Campus campus;
 }

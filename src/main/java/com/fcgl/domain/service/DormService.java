@@ -5,9 +5,12 @@ import com.fcgl.common.exception.BusinessException;
 import com.fcgl.common.exception.DataAccessException;
 import com.fcgl.common.request.BatchDeleteRequest;
 import com.fcgl.common.util.RandomUtils;
+import com.fcgl.domain.entity.Campus;
 import com.fcgl.domain.entity.Dorm;
 import com.fcgl.domain.entity.User;
+import com.fcgl.domain.repository.CampusRepository;
 import com.fcgl.domain.repository.DormRepository;
+import com.fcgl.domain.repository.UserRepository;
 import com.fcgl.domain.request.DormRequest;
 import com.fcgl.domain.response.DormResponse;
 import com.fcgl.messages.CodeMsg;
@@ -36,11 +39,15 @@ public class DormService {
 
     private final CodeMsg codeMsg;
     private final DormRepository dormRepository;
+    private final CampusRepository campusRepository;
+    private final UserRepository userRepository;
 
     @Autowired
-    public DormService(CodeMsg codeMsg, DormRepository dormRepository) {
+    public DormService(CodeMsg codeMsg, DormRepository dormRepository, CampusRepository campusRepository, UserRepository userRepository) {
         this.codeMsg = codeMsg;
         this.dormRepository = dormRepository;
+        this.campusRepository = campusRepository;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -54,11 +61,18 @@ public class DormService {
         if (dormRepository.countAllByDn(request.getDn()) > 0) {
             throw new BusinessException(codeMsg.recordAlreadyExistCode(), codeMsg.recordAlreadyExistMsg());
         }
+        Campus campus = campusRepository.findByCid(request.getCid());
         Dorm dorm = new Dorm();
         BeanUtils.copyProperties(request, dorm);
+        if (campus != null) {
+            dorm.setCampus(campus);
+        }
         dorm.setDid(RandomUtils.randomString(30));
         dorm.setStatus(false);
-        return new CodeMsgDataResponse<>(codeMsg.successCode(), codeMsg.successMsg(), dormRepository.save(dorm));
+        dormRepository.save(dorm);
+        DormResponse response = new DormResponse();
+        BeanUtils.copyProperties(dorm, response);
+        return new CodeMsgDataResponse<>(codeMsg.successCode(), codeMsg.successMsg(), response);
     }
 
 
@@ -72,22 +86,20 @@ public class DormService {
     public ApiResponse batchDelete(BatchDeleteRequest request) {
         //删除的时候在用的不删除
         List<Dorm> dorms = dormRepository.findAllByDidIn(request.getIds());
-        List<String> dids = dorms.stream()
-                .filter(t -> !t.getStatus())
-                .map(Dorm::getDid)
-                .collect(Collectors.toList());
-//要想删除再用的，去掉下面的注释
-//        for (Dorm dorm : dorms) {
-//            if (!dorm.getStatus()) {
-//                List<User> users = dorm.getUsers();
-//                //解除user中的级联关系
-//                for (User user : users) {
-//                    user.setDorm(null);
-//                    userRepository.save(user);
-//                }
-//            }
-//        }
-        dormRepository.deleteAllByDidIn(dids);
+        for (Dorm dorm : dorms) {
+            if (dorm.getStatus()) {
+                List<User> users = dorm.getUsers();
+                //解除user中的级联关系
+                for (User user : users) {
+                    user.setDorm(null);
+                    userRepository.save(user);
+                }
+            }
+            //接触与campus的级联关系
+            dorm.setCampus(null);
+            dormRepository.save(dorm);
+        }
+        dormRepository.deleteAllByDidIn(request.getIds());
         return new CodeMsgDataResponse<>(codeMsg.successCode(), codeMsg.successMsg());
     }
 
@@ -108,7 +120,28 @@ public class DormService {
             }
         }
         BeanUtils.copyProperties(request, dorm);
-        return new CodeMsgDataResponse<>(codeMsg.successCode(), codeMsg.successMsg(), dormRepository.save(dorm));
+        dorm = initDormUpdate(request.getCid(), dorm);
+        dormRepository.save(dorm);
+        DormResponse response = new DormResponse();
+        BeanUtils.copyProperties(dorm, response);
+        return new CodeMsgDataResponse<>(codeMsg.successCode(), codeMsg.successMsg(), response);
+    }
+
+    /**
+     * 更新的时候初始化dorm
+     *
+     * @param cid
+     * @param dorm
+     * @return
+     */
+    private Dorm initDormUpdate(String cid, Dorm dorm) {
+        dorm.setCampus(null);
+        Campus campus = campusRepository.findByCid(cid);
+        if (campus != null) {
+            dorm.setCampus(campus);
+        }
+        dorm = dormRepository.save(dorm);
+        return dorm;
     }
 
 

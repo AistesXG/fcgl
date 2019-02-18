@@ -44,7 +44,10 @@ public class CampusService {
     private final DormService dormService;
 
     @Autowired
-    public CampusService(CodeMsg codeMsg, UserRepository userRepository, CampusRepository campusRepository, DormService dormService) {
+    public CampusService(CodeMsg codeMsg,
+                         UserRepository userRepository,
+                         CampusRepository campusRepository,
+                         DormService dormService) {
         this.codeMsg = codeMsg;
         this.userRepository = userRepository;
         this.campusRepository = campusRepository;

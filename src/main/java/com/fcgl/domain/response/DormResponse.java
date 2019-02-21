@@ -42,5 +42,5 @@ public class DormResponse {
     /**
      * 校区
      */
-    private Campus campus;
+    private String campusName;
 }

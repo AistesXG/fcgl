@@ -75,6 +75,7 @@ public class DormService {
         dormRepository.save(dorm);
         DormResponse response = new DormResponse();
         BeanUtils.copyProperties(dorm, response);
+        response.setCampusName(dorm.getCampus().getName());
         return new CodeMsgDataResponse<>(codeMsg.successCode(), codeMsg.successMsg(), response);
     }
 
@@ -127,6 +128,7 @@ public class DormService {
         dormRepository.save(dorm);
         DormResponse response = new DormResponse();
         BeanUtils.copyProperties(dorm, response);
+        response.setCampusName(dorm.getCampus().getName());
         return new CodeMsgDataResponse<>(codeMsg.successCode(), codeMsg.successMsg(), response);
     }
 
@@ -160,6 +162,7 @@ public class DormService {
         DormResponse response = new DormResponse();
         BeanUtils.copyProperties(dorm, response);
         response = initUserNames(dorm, response);
+        response.setCampusName(dorm.getCampus().getName());
         return new CodeMsgDataResponse<>(codeMsg.successCode(), codeMsg.successMsg(), response);
     }
 
@@ -191,6 +194,7 @@ public class DormService {
             DormResponse response = new DormResponse();
             BeanUtils.copyProperties(dorm, response);
             response = initUserNames(dorm, response);
+            response.setCampusName(dorm.getCampus().getName());
             responses.add(response);
         }
         Page<DormResponse> list = new PageImpl<>(responses, request.getPageDto().convertToPageRequest(), page.getTotalElements());

@@ -79,6 +79,7 @@ public class AuthService {
         if (campusSet.size() > 0) {
             user.setCampus(campusSet);
         }
+
         if (dorm != null) {
             //更新宿舍楼的状态为true
             dorm.setStatus(true);
@@ -91,6 +92,10 @@ public class AuthService {
         userService.saveUser(user);
         UserResponse response = new UserResponse();
         BeanUtils.copyProperties(user, response);
+        Set<String> campusNames = new HashSet<>();
+        campusSet.forEach((s) -> campusNames.add(s.getName()));
+        response.setCampusName(campusNames);
+        response.setDormNumber(user.getDorm().getDn());
         return new CodeMsgDataResponse<>(codeMsg.successCode(), codeMsg.successMsg(), response);
     }
 
@@ -161,6 +166,10 @@ public class AuthService {
         for (User user : userPage.getContent()) {
             UserResponse response = new UserResponse();
             BeanUtils.copyProperties(user, response);
+            Set<String> campusNames = new HashSet<>();
+            user.getCampus().forEach((s) -> campusNames.add(s.getName()));
+            response.setCampusName(campusNames);
+            response.setDormNumber(user.getDorm().getDn());
             responses.add(response);
         }
         Page<UserResponse> list = new PageImpl<>(responses, request.getPageDto().convertToPageRequest(), userPage.getTotalElements());

@@ -267,6 +267,10 @@ public class UserService {
     private UserResponse toUserResponse(User user) {
         UserResponse response = new UserResponse();
         BeanUtils.copyProperties(user, response);
+        Set<String> campusNames = new HashSet<>();
+        user.getCampus().forEach((s) -> campusNames.add(s.getName()));
+        response.setCampusName(campusNames);
+        response.setDormNumber(user.getDorm().getDn());
         return response;
     }
 }

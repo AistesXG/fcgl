@@ -48,12 +48,12 @@ public class UserResponse {
     /**
      * 校区
      */
-    private Set<Campus> campus;
+    private Set<String> campusName;
 
     /**
      * 宿舍楼
      */
-    private Dorm dorm;
+    private String dormNumber;
 
     /**
      * 备注

@@ -38,24 +38,16 @@ import java.util.stream.Collectors;
 public class UserService {
 
 
-    private final UserRepository userRepository;
-    private final CodeMsg codeMsg;
-    private final PasswordEncoder passwordEncoder;
-    private final CampusRepository campusRepository;
-    private final DormRepository dormRepository;
-
     @Autowired
-    public UserService(UserRepository userRepository,
-                       CodeMsg codeMsg,
-                       PasswordEncoder passwordEncoder,
-                       CampusRepository campusRepository,
-                       DormRepository dormRepository) {
-        this.userRepository = userRepository;
-        this.codeMsg = codeMsg;
-        this.passwordEncoder = passwordEncoder;
-        this.campusRepository = campusRepository;
-        this.dormRepository = dormRepository;
-    }
+    private UserRepository userRepository;
+    @Autowired
+    private CodeMsg codeMsg;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+    @Autowired
+    private CampusRepository campusRepository;
+    @Autowired
+    private DormRepository dormRepository;
 
     /**
      * 查找用户信息

@@ -38,21 +38,15 @@ import java.util.stream.Collectors;
 @Service
 public class CampusService {
 
-    private final CodeMsg codeMsg;
-    private final UserRepository userRepository;
-    private final CampusRepository campusRepository;
-    private final DormService dormService;
-
     @Autowired
-    public CampusService(CodeMsg codeMsg,
-                         UserRepository userRepository,
-                         CampusRepository campusRepository,
-                         DormService dormService) {
-        this.codeMsg = codeMsg;
-        this.userRepository = userRepository;
-        this.campusRepository = campusRepository;
-        this.dormService = dormService;
-    }
+    private CodeMsg codeMsg;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private CampusRepository campusRepository;
+    @Autowired
+    private DormService dormService;
+
 
     /**
      * 添加校区

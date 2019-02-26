@@ -36,22 +36,14 @@ import java.util.stream.Collectors;
  */
 @Service
 public class DormService {
-
-    private final CodeMsg codeMsg;
-    private final DormRepository dormRepository;
-    private final CampusRepository campusRepository;
-    private final UserRepository userRepository;
-
     @Autowired
-    public DormService(CodeMsg codeMsg,
-                       DormRepository dormRepository,
-                       CampusRepository campusRepository,
-                       UserRepository userRepository) {
-        this.codeMsg = codeMsg;
-        this.dormRepository = dormRepository;
-        this.campusRepository = campusRepository;
-        this.userRepository = userRepository;
-    }
+    private CodeMsg codeMsg;
+    @Autowired
+    private DormRepository dormRepository;
+    @Autowired
+    private CampusRepository campusRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     /**
      * 添加宿舍楼
